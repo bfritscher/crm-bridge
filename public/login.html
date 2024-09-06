@@ -1,0 +1,6 @@
+<script>
+    const url = new URL(window.location);
+    const params = url.searchParams;
+    const loginUrl = params.get('url');
+    window.location = loginUrl;;
+</script>
