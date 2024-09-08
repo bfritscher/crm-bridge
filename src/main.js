@@ -6,6 +6,7 @@ import App from './App.vue'
 import { useMainStore } from './stores/main'
 
 function applyOfficeTheme() {
+  if (!Office.context.officeTheme) return
   const bodyBackgroundColor = Office.context.officeTheme.bodyBackgroundColor
   const bodyForegroundColor = Office.context.officeTheme.bodyForegroundColor
   const controlBackgroundColor = Office.context.officeTheme.controlBackgroundColor
@@ -23,17 +24,20 @@ window.Office.onReady((info) => {
   const mainStore = useMainStore()
   mainStore.info = info
   app.mount('#app')
-  Office.context.mailbox.masterCategories.getAsync(function(asyncResult) {
+  /*
+  requires ReadWriteMailbox
+  Office.context.mailbox.masterCategories.getAsync(function (asyncResult) {
     if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-      const categories = asyncResult.value;
+      const categories = asyncResult.value
       if (categories && categories.length > 0) {
-        console.log("Master categories:");
-        console.log(JSON.stringify(categories));
+        console.log('Master categories:')
+        console.log(JSON.stringify(categories))
       } else {
-        console.log("There are no categories in the master list.");
+        console.log('There are no categories in the master list.')
       }
     } else {
-      console.error(asyncResult.error);
+      console.error(asyncResult.error)
     }
-  });
+  })
+  */
 })

@@ -13,23 +13,32 @@
       <div v-if="!hideTitle" class="ms-font-s color-control-fg" v-html="formattedTitle"></div>
       <div v-if="!hideInfo" class="ms-font-xs color-control-fg" v-html="formattedInfo"></div>
     </div>
-    <a
-      v-if="contact.url"
-      :href="contact.url"
-      target="_blank"
-      class="color-control-fg"
-      @click.stop=""
+    <div v-if="contact._meta?.external_url">
+      <a
+        :href="contact._meta.external_url"
+        target="_blank"
+        class="color-control-fg button"
+        @click.stop=""
+      >
+        <i class="ms-Icon ms-Icon--OpenInNewTab"></i>
+      </a>
+    </div>
+    <menu-button
+      v-if="contact.isNotFound"
+      :options="getCreateOptions()"
+      @select="($event) => mainStore.addContact($event, contact)"
     >
-      <i class="ms-Icon ms-Icon--OpenInNewTab"></i>
-    </a>
-    <a v-if="contact.isNotFound" href="#" class="color-control-fg" @click.stop="addContact">
       <i class="ms-Icon ms-Icon--AddFriend"></i>
-    </a>
+    </menu-button>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { computed } from 'vue'
+import { stripHtml, nl2br } from '@/utils'
+import { getCreateOptions } from '@/stores/config'
+import { useMainStore } from '@/stores/main'
+import MenuButton from './MenuButton.vue'
 
 const props = defineProps({
   contact: {
@@ -50,60 +59,32 @@ const props = defineProps({
   }
 })
 
+const mainStore = useMainStore()
+
 const avatarSizeObj = computed(() => {
   return { width: props.avatarSize, height: props.avatarSize }
 })
 
-const firstname = computed(() => {
-  if (!props.contact.firstname && !props.contact.lastname) {
-    const parts = props.contact.displayName.split(' ')
-    return parts[0]
-  }
-  return props.contact.firstname
-})
-
-const lastname = computed(() => {
-  if (!props.contact.firstname && !props.contact.lastname) {
-    const parts = props.contact.displayName.split(' ')
-    if (parts.length > 1) {
-      return parts[parts.length - 1]
-    }
-    return ''
-  }
-  return props.contact.lastname
-})
-
 const contactName = computed(() => {
-  return props.contact.isLoading ? props.contact.email : `${firstname.value} ${lastname.value}`
+  return `${props.contact.firstname} ${props.contact.lastname}`
 })
 
 const formattedTitle = computed(() => {
   return props.contact.isLoading
     ? 'Loading...'
-    : props.contact.isNotFound
-      ? props.contact.email
-      : props.contact.title || ''
+    : stripHtml(props.contact.isNotFound ? props.contact.email : props.contact.title || '')
 })
 
 const avatarInitials = computed(() => {
   return (
-    ((firstname.value && firstname.value[0].toUpperCase()) || '') +
-    ((lastname.value && lastname.value[0].toUpperCase()) || '')
+    ((props.contact.firstname && props.contact.firstname[0].toUpperCase()) || '') +
+    ((props.contact.lastname && props.contact.lastname[0].toUpperCase()) || '')
   )
 })
 
 const formattedInfo = computed(() => {
-  return nl2br(props.contact.info || '')
+  return nl2br(stripHtml(props.contact.info || ''))
 })
-
-function nl2br(text) {
-  return text ? text.replace(/\n/g, '<br>') : ''
-}
-
-function addContact() {
-  // todo display services dropdown
-  props.contact.isNotFound = false
-}
 </script>
 <style scoped>
 .color-control-fg {
@@ -116,7 +97,6 @@ function addContact() {
   color: var(--body-fg-color);
 }
 .contact {
-  padding: 8px;
   display: flex;
 }
 .contact:hover {

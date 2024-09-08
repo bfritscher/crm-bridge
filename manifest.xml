@@ -33,7 +33,7 @@
       </DesktopSettings>
     </Form>
   </FormSettings>
-  <Permissions>ReadWriteMailbox</Permissions>
+  <Permissions>ReadWriteItem</Permissions>
   <Rule xsi:type="RuleCollection" Mode="Or">
     <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read" />
   </Rule>
@@ -50,7 +50,7 @@
       <Hosts>
         <Host xsi:type="MailHost">
           <DesktopFormFactor>
-            <FunctionFile resid="Commands.Url" />
+            <!-- <FunctionFile resid="Commands.Url" /> -->
             <ExtensionPoint xsi:type="MessageReadCommandSurface">
               <OfficeTab id="TabDefault">
                 <Group id="msgReadGroup">
@@ -116,6 +116,30 @@
             </ExtensionPoint>
           -->
           </DesktopFormFactor>
+          <MobileFormFactor>
+            <ExtensionPoint xsi:type="MobileMessageReadCommandSurface">
+              <Group id="msgReadGroupMobile">
+                <Label resid="GroupLabel" />
+                <Control xsi:type="MobileButton" id="msgReadOpenPaneButtonMobile">
+                  <Label resid="TaskpaneButton.Label" />
+                  <Icon>
+                    <bt:Image size="25" scale="1" resid="Icon.16x16" />
+                    <bt:Image size="25" scale="2" resid="Icon.16x16" />
+                    <bt:Image size="25" scale="3" resid="Icon.16x16" />
+                    <bt:Image size="32" scale="1" resid="Icon.32x32" />
+                    <bt:Image size="32" scale="2" resid="Icon.32x32" />
+                    <bt:Image size="32" scale="3" resid="Icon.32x32" />
+                    <bt:Image size="48" scale="1" resid="Icon.80x80" />
+                    <bt:Image size="48" scale="2" resid="Icon.80x80" />
+                    <bt:Image size="48" scale="3" resid="Icon.80x80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Url" />
+                  </Action>
+                </Control>
+              </Group>
+            </ExtensionPoint>
+          </MobileFormFactor>
         </Host>
       </Hosts>
       <Resources>

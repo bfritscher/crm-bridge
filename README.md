@@ -33,3 +33,63 @@ npm run build
 ```sh
 npm run lint
 ```
+
+config
+```
+[
+  {
+    "name": "PB-DEV",
+    "auth_url": "http://localhost:8090/login.html",
+    "search_url": "http://localhost:8090/search_email?q=",
+    "create_url": "http://localhost:8090/api/collections/contacts/records",
+    "disabled": false
+  },
+  {
+    "name": "PB",
+    "auth_url": "https://crm.bf0.ch/login.html",
+    "search_url": "https://crm.bf0.ch/search_email?q=",
+    "create_url": "https://crm.bf0.ch/api/collections/contacts/records",
+    "disabled": true
+  },
+  {
+    "name": "EMBA",
+    "search_url": "http://localhost:8000/api/search_email?q=",
+    "create_url": [
+      {
+        "label": "EMBA Contact",
+        "url": "",
+        "mapping": {
+          "firstname": "prenom",
+          "lastname": "nom"
+        }
+      },
+      {
+        "label": "EMBA Participants",
+        "url": ""
+      },
+      {
+        "label": "EMBA Intervenant",
+        "url": ""
+      }
+    ],
+    "disabled": false
+  }
+]
+```
+
+contact
+```
+{
+    _meta: {
+        external_url: "",
+        resource_url: "",
+        fields: [],
+        textarea: []
+    },
+    email,
+    firstname,
+    lastname,
+    title,
+    info
+}
+```

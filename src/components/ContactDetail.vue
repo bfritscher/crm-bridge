@@ -6,26 +6,124 @@
       hide-info
       hide-title
       avatar-size="64px"
-      @click="mainStore.selectedContact = undefined"
+      @click="back"
     />
-    if editMode
-    <label>Firstname <input type="text" /></label>
-    <label>Lastname <input type="text" /></label>
-    <label>Email <input type="email" /></label>
-    <label>Title <input type="text" /></label>
-    <label>Info <textarea></textarea></label>
-    auto field from detailed contact lookup?
-    <button @click="mainStore.selectedContact = undefined">back</button>
-    <button>save</button>
-    comment? add event/task/comment Timeline
+    <div v-if="contact" class="c-edit" :class="{ lock: isSaving }">
+      <div>
+        <div v-for="field in mainStore.selectedContact._meta.fields" :key="field">
+          <label :for="`c_${field}`">{{ field }}</label>
+        </div>
+      </div>
+      <div class="flex">
+        <div v-for="field in mainStore.selectedContact._meta.fields" :key="field">
+          <textarea
+            v-if="mainStore.selectedContact._meta?.textarea?.includes(field)"
+            :id="`c_${field}`"
+            v-model="contact[field]"
+          ></textarea>
+          <input v-else :id="`c_${field}`" type="text" v-model="contact[field]" />
+        </div>
+      </div>
+    </div>
+    <button @click="save" :disabled="isSaving">save</button>
+    <button @click="back" :disabled="isSaving">back</button>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { useMainStore } from '@/stores/main'
 
 import ContactItem from './ContactItem.vue'
 
 const mainStore = useMainStore()
+const contact = ref()
+const isSaving = ref(false)
+
+watchEffect(() => {
+  if (mainStore.selectedContact && mainStore.selectedContact._meta.resource_url) {
+    fetch(mainStore.selectedContact._meta.resource_url, {
+      headers: {
+        Authorization: `Bearer ${mainStore.tokens[mainStore.selectedContact._meta.source.name]}`
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        contact.value = data
+      })
+  }
+})
+function back() {
+  mainStore.selectedContact = undefined
+}
+
+async function save() {
+  isSaving.value = true
+  try {
+    const rawResponse = await fetch(mainStore.selectedContact._meta.resource_url, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${mainStore.tokens[mainStore.selectedContact._meta.source.name]}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(
+        Object.fromEntries(
+          Object.entries(contact.value).filter(([key]) =>
+            mainStore.selectedContact._meta.fields.includes(key)
+          )
+        )
+      )
+    })
+    if (!rawResponse.ok) {
+      throw new Error('Failed to save contact')
+    }
+    Object.assign(
+      mainStore.selectedContact,
+      await mainStore.searchDataSource(
+        mainStore.selectedContact._meta.source,
+        mainStore.selectedContact.email
+      )
+    )
+    back()
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isSaving.value = false
+  }
+}
 </script>
+<style scoped>
+.contact-detail {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.c-edit {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0 0.5rem 0;
+}
+.c-edit div {
+  margin-bottom: 0.2rem;
+  display: flex;
+  flex-direction: column;
+}
+label::first-letter {
+  text-transform: capitalize;
+}
+.flex {
+  flex: 1;
+}
+input,
+textarea {
+  background-color: transparent;
+  color: inherit;
+  border: 0;
+  border-bottom: 1px solid var(--control-fg-color);
+}
+.lock {
+  pointer-events: none;
+  opacity: 0.5;
+}
+</style>

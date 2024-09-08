@@ -1,6 +1,16 @@
+<script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
 <script>
     const url = new URL(window.location);
     const params = url.searchParams;
     const loginUrl = params.get('url');
-    window.location = loginUrl;;
+    const token = params.get('token');
+    if (token) {
+        Office.onReady((info) => {
+            if (Office.context.ui) {
+                Office.context.ui.messageParent(token);
+            }
+        });
+    } else if (loginUrl) {
+        window.location = `${loginUrl}?reply_to=${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+    }
 </script>
