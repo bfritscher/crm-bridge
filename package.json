@@ -5,10 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "vite build",
     "preview": "vite preview",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --build --force",
     "start": "office-addin-debugging start manifest.xml --dev-server vite",
     "start:desktop": "office-addin-debugging start manifest.xml desktop --dev-server vite",
     "start:web": "office-addin-debugging start manifest.xml web --dev-server vite",

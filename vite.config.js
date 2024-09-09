@@ -13,7 +13,7 @@ export default defineConfig(async () => {
       vue(),
       officeAddin({
         devUrl: 'https://localhost:3000',
-        prodUrl: 'https://office-addin.contoso.com'
+        prodUrl: 'https://crm-bridge.bf0.ch'
       })
     ],
     resolve: {
