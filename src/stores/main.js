@@ -15,7 +15,8 @@ export const useMainStore = defineStore('main', () => {
     localStorage.setItem('CRM-bridge-tokens', JSON.stringify(tokens.value))
   }
 
-  const dataSourcesInvalidTokens = new Set()
+  const sourceDialogQueue = []
+  let isDialogOpen = false
 
   async function loadEmail(email) {
     if (Object.prototype.hasOwnProperty.call(CACHE, email)) {
@@ -105,14 +106,23 @@ export const useMainStore = defineStore('main', () => {
   }
 
   function handleMissingTokens(source) {
-    if (dataSourcesInvalidTokens.has(source)) {
+    if (sourceDialogQueue.includes(source)) {
       return
     }
+    sourceDialogQueue.push(source)
+    processDialogQueue()
+  }
+
+  function processDialogQueue() {
+    if (isDialogOpen || sourceDialogQueue.length === 0) {
+      return
+    }
+    const source = sourceDialogQueue[0]
+    isDialogOpen = true
     openAuthDialog(source)
   }
 
   function openAuthDialog(source) {
-    dataSourcesInvalidTokens.add(source)
     const dialogOptions = { width: 40, height: 40, displayInIframe: false }
     Office.context.ui.displayDialogAsync(
       //https://crm.bf0.ch/login.html
@@ -122,18 +132,24 @@ export const useMainStore = defineStore('main', () => {
         const settingsDialog = asyncResult.value
         if (asyncResult.status === Office.AsyncResultStatus.Failed) {
           console.error(asyncResult.error.code + ': ' + asyncResult.error.message)
-          dataSourcesInvalidTokens.delete(source)
+          sourceDialogQueue.splice(sourceDialogQueue.indexOf(source), 1)
+          isDialogOpen = false
+          processDialogQueue()
         } else {
           settingsDialog.addEventHandler(Office.EventType.DialogMessageReceived, (event) => {
             tokens.value[source.name] = event.message
             saveTokens()
-            dataSourcesInvalidTokens.delete(source)
             settingsDialog.close()
+            sourceDialogQueue.splice(sourceDialogQueue.indexOf(source), 1)
+            isDialogOpen = false
+            processDialogQueue()
             parseItem(Office.context.mailbox.item)
           })
           settingsDialog.addEventHandler(Office.EventType.DialogEventReceived, (event) => {
             console.log('dialog closed', event)
-            dataSourcesInvalidTokens.delete(source)
+            sourceDialogQueue.splice(sourceDialogQueue.indexOf(source), 1)
+            isDialogOpen = false
+            processDialogQueue()
           })
         }
       }

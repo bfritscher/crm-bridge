@@ -18,7 +18,7 @@ function applyOfficeTheme() {
 }
 
 window.Office.onReady((info) => {
-  applyOfficeTheme()
+  //applyOfficeTheme()
   const app = createApp(App)
   app.use(createPinia())
   const mainStore = useMainStore()
