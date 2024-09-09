@@ -69,11 +69,8 @@ onBeforeUnmount(() => {
 
 .dropdown-button {
   width: 100%;
-
   border-radius: 4px;
   font-size: 14px;
-  color: var(--body-fg-color);
-  background-color: var(--body-bg-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -81,11 +78,6 @@ onBeforeUnmount(() => {
   transition: border-color 0.2s ease;
 }
 
-.dropdown-button:hover {
-  background-color: var(--control-fg-color);
-  color: var(--control-bg-color);
-  transition: border-color 0.3s;
-}
 
 .dropdown-menu {
   margin-top: 5px;
@@ -95,8 +87,7 @@ onBeforeUnmount(() => {
   min-width: 150px;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  color: var(--body-fg-color);
-  background-color: var(--body-bg-color);
+  background-color: var(--neutralPrimarySurface);
 }
 
 ul {
@@ -113,6 +104,6 @@ ul {
 }
 
 .dropdown-item:hover {
-  background-color: var(--control-bg-color);
+  background-color: var(--neutralSecondarySurface);
 }
 </style>

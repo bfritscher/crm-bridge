@@ -1,20 +1,6 @@
-let config
+import { ref } from 'vue'
 
-/*
-[
-  {
-    "name": "PB",
-    "auth_url": "http://localhost:8090/login.html",
-    "search_url": "http://localhost:8090/search_email?q=",
-    "create_url": "http://localhost:8090/api/collections/contacts/records"
-  },
-  {
-    "name": "EMBA",
-    "search_url": "http://localhost:8000/api/search_email?q=",
-    "disabled": true
-  }
-]
-*/
+let config
 
 export function getConfig() {
   if (!config) {
@@ -57,7 +43,7 @@ function optionLabel(entry, source) {
 
 export function getCreateOptions() {
   return getConfig().reduce((acc, source) => {
-    if (source.disabled) return acc
+    if (!source.enabled) return acc
     if (source.create_url) {
       if (Array.isArray(source.create_url)) {
         source.create_url.forEach((entry) => {
@@ -69,4 +55,22 @@ export function getCreateOptions() {
     }
     return acc
   }, [])
+}
+
+
+export const DARK = 'dark'
+export const LIGHT = 'light'
+
+export const isDark = ref((localStorage.getItem('CRM-bridge-theme-color') || DARK) === DARK)
+
+function applyThemeColor() {
+  document.body.classList.toggle('dark', isDark.value)
+}
+
+applyThemeColor()
+
+export function toggleThemeColor() {
+  isDark.value = !isDark.value
+  localStorage.setItem('CRM-bridge-theme-color', isDark.value ? DARK : LIGHT)
+  applyThemeColor()
 }

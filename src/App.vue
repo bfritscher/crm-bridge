@@ -12,10 +12,6 @@
       </h2>
     </section>
     <main id="app-body" v-else>
-      <!-- search input or tab? -->
-      <!-- add contact -->
-      <!-- add event/task/comment? -->
-      <!-- related group members -->
       <settings-page v-if="mainStore.showSettings" />
       <div id="contacts" v-else-if="!mainStore.selectedContact">
         <contact-item
@@ -29,20 +25,16 @@
       <div v-else>
         <contact-detail :contact="mainStore.selectedContact" />
       </div>
-      <div
-        v-if="!mainStore.showSettings && !mainStore.selectedContact"
-        id="settings-icon"
-        aria-label="Settings"
-        tabindex="0"
-        @click="mainStore.showSettings = true"
-      >
-        <i class="ms-Icon enlarge ms-Icon--Settings ms-fontColor-white"></i>
+      <div v-if="!mainStore.showSettings && !mainStore.selectedContact" class="d-flex">
+        <a class="button" aria-label="Settings" tabindex="0" @click="showSettings">
+          <i class="ms-Icon ms-Icon--Settings"></i>
+        </a>
       </div>
     </main>
   </div>
 </template>
 <script setup>
-import { onMounted } from 'vue'
+import { nextTick, onMounted, watchEffect } from 'vue'
 import { useMainStore } from './stores/main'
 import ContactItem from './components/ContactItem.vue'
 import ContactDetail from './components/ContactDetail.vue'
@@ -58,31 +50,35 @@ onMounted(() => {
   }
 })
 
+let scrollPosition
+
 function selectContact(contact) {
   if (mainStore.selectedContact === contact || contact.isNotFound) return
+  scrollPosition = window.scrollY
   mainStore.selectedContact = contact
+}
+
+watchEffect(() => {
+  if (mainStore.selectedContact) {
+    window.scrollTo(0, 0)
+  } else {
+    console.log('scrolling to', scrollPosition)
+    nextTick(() => {
+      window.scrollTo(0, scrollPosition)
+    })
+  }
+})
+
+function showSettings() {
+  mainStore.showSettings = true
+  window.scrollTo(0, 0)
 }
 </script>
 <style scoped>
 .contact-item {
   padding: 8px;
 }
-</style>
-
-<style>
-html,
-body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  color: var(--body-fg-color);
-  background-color: var(--body-bg-color);
-}
 #app-body {
   flex-direction: column;
-}
-.ms-Fabric {
-  color: var(--body-fg-color);
 }
 </style>

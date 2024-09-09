@@ -1,6 +1,6 @@
 <template>
   <div class="contact">
-    <div class="c-avatar" :style="avatarSizeObj">
+    <div class="c-avatar" :style="avatarStyle">
       {{ avatarInitials }}
       <div
         v-if="contact.photo"
@@ -10,16 +10,11 @@
     </div>
     <div class="c-content">
       <div class="ms-font-m">{{ contactName }}</div>
-      <div v-if="!hideTitle" class="ms-font-s color-control-fg" v-html="formattedTitle"></div>
-      <div v-if="!hideInfo" class="ms-font-xs color-control-fg" v-html="formattedInfo"></div>
+      <div v-if="!hideTitle" class="ms-font-s neutralPrimary" v-html="formattedTitle"></div>
+      <div v-if="!hideInfo" class="ms-font-xs neutralPrimary" v-html="formattedInfo"></div>
     </div>
     <div v-if="contact._meta?.external_url">
-      <a
-        :href="contact._meta.external_url"
-        target="_blank"
-        class="color-control-fg button"
-        @click.stop=""
-      >
+      <a :href="contact._meta.external_url" target="_blank" class="button" @click.stop="">
         <i class="ms-Icon ms-Icon--OpenInNewTab"></i>
       </a>
     </div>
@@ -39,6 +34,7 @@ import { stripHtml, nl2br } from '@/utils'
 import { getCreateOptions } from '@/stores/config'
 import { useMainStore } from '@/stores/main'
 import MenuButton from './MenuButton.vue'
+import { getColors } from '@/colors'
 
 const props = defineProps({
   contact: {
@@ -61,8 +57,10 @@ const props = defineProps({
 
 const mainStore = useMainStore()
 
-const avatarSizeObj = computed(() => {
-  return { width: props.avatarSize, height: props.avatarSize }
+
+const avatarStyle = computed(() => {
+  const colors = getColors(props.contact.email)
+  return { width: props.avatarSize, height: props.avatarSize, color: colors.foreground, backgroundColor: colors.background }
 })
 
 const contactName = computed(() => {
@@ -87,29 +85,20 @@ const formattedInfo = computed(() => {
 })
 </script>
 <style scoped>
-.color-control-fg {
-  color: var(--control-fg-color);
-}
-.color-control-fg:hover {
-  color: var(--body-fg-color);
-}
-.color-body-fg {
-  color: var(--body-fg-color);
-}
 .contact {
   display: flex;
+  color: var(--neutralDark);
+  background-color: var(--neutralPrimarySurface);
+  cursor: default;
 }
 .contact:hover {
-  color: var(--control-fg-color);
-  background-color: var(--control-bg-color);
+  background-color: var(--neutralSecondarySurface);
 }
 .c-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   margin-right: 8px;
-  color: #bcc3c7;
-  background-color: #3b4447;
   overflow: hidden;
   flex-shrink: 0;
   display: flex;

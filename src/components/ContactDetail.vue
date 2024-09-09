@@ -25,8 +25,10 @@
         </div>
       </div>
     </div>
-    <button @click="save" :disabled="isSaving">save</button>
-    <button @click="back" :disabled="isSaving">back</button>
+    <div class="d-flex justify-right ">
+      <button @click="save" class="btn btn-primary" :disabled="isSaving">Save</button>
+      <button @click="back" class="btn" :disabled="isSaving">Back</button>
+    </div>
   </div>
 </template>
 
@@ -114,13 +116,6 @@ label::first-letter {
 }
 .flex {
   flex: 1;
-}
-input,
-textarea {
-  background-color: transparent;
-  color: inherit;
-  border: 0;
-  border-bottom: 1px solid var(--control-fg-color);
 }
 .lock {
   pointer-events: none;

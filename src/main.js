@@ -5,20 +5,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import { useMainStore } from './stores/main'
 
-function applyOfficeTheme() {
-  if (!Office.context.officeTheme) return
-  const bodyBackgroundColor = Office.context.officeTheme.bodyBackgroundColor
-  const bodyForegroundColor = Office.context.officeTheme.bodyForegroundColor
-  const controlBackgroundColor = Office.context.officeTheme.controlBackgroundColor
-  const controlForegroundColor = Office.context.officeTheme.controlForegroundColor
-  document.documentElement.style.setProperty('--body-bg-color', bodyBackgroundColor)
-  document.documentElement.style.setProperty('--body-fg-color', bodyForegroundColor)
-  document.documentElement.style.setProperty('--control-bg-color', controlBackgroundColor)
-  document.documentElement.style.setProperty('--control-fg-color', controlForegroundColor)
-}
-
 window.Office.onReady((info) => {
-  //applyOfficeTheme()
   const app = createApp(App)
   app.use(createPinia())
   const mainStore = useMainStore()

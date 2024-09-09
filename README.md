@@ -41,43 +41,92 @@ npm run lint
 config
 ```
 [
-  {
-    "name": "PB-DEV",
-    "auth_url": "http://localhost:8090/login.html",
-    "search_url": "http://localhost:8090/search_email?q=",
-    "create_url": "http://localhost:8090/api/collections/contacts/records",
-    "disabled": false
-  },
-  {
-    "name": "PB",
-    "auth_url": "https://crm.bf0.ch/login.html",
-    "search_url": "https://crm.bf0.ch/search_email?q=",
-    "create_url": "https://crm.bf0.ch/api/collections/contacts/records",
-    "disabled": true
-  },
-  {
-    "name": "EMBA",
-    "search_url": "http://localhost:8000/api/search_email?q=",
-    "create_url": [
-      {
-        "label": "EMBA Contact",
-        "url": "",
-        "mapping": {
-          "firstname": "prenom",
-          "lastname": "nom"
-        }
-      },
-      {
-        "label": "EMBA Participants",
-        "url": ""
-      },
-      {
-        "label": "EMBA Intervenant",
-        "url": ""
-      }
-    ],
-    "disabled": false
-  }
+    {
+        "name": "PB-DEV",
+        "auth_url": "http://localhost:8090/login.html",
+        "search_url": "http://localhost:8090/search_email?q=",
+        "create_url": [
+            {
+                "url": "http://localhost:8090/api/collections/contacts/records"
+            }
+        ],
+        "enabled": false
+    },
+    {
+        "name": "PB",
+        "auth_url": "https://crm.bf0.ch/login.html",
+        "search_url": "https://crm.bf0.ch/search_email?q=",
+        "create_url": [
+            {
+                "url": "https://crm.bf0.ch/api/collections/contacts/records"
+            }
+        ],
+        "enabled": true
+    },
+    {
+        "name": "EMBA-DEV",
+        "auth_url": "http://localhost:8000/api/auth/login",
+        "search_url": "http://localhost:8000/api/search_email?q=",
+        "create_url": [
+            {
+                "label": "EMBA Contact",
+                "url": "http://localhost:8000/api/contact/",
+                "mapping": {
+                    "firstname": "prenom",
+                    "lastname": "nom"
+                }
+            },
+            {
+                "label": "EMBA Participants",
+                "url": "http://localhost:8000/api/participant/",
+                "mapping": {
+                    "firstname": "prenom",
+                    "lastname": "nom"
+                }
+            },
+            {
+                "label": "EMBA Intervenant",
+                "url": "http://localhost:8000/api/intervenant/",
+                "mapping": {
+                    "firstname": "prenom",
+                    "lastname": "nom"
+                }
+            }
+        ],
+        "enabled": false
+    },
+    {
+        "name": "EMBA",
+        "auth_url": "https://admin.myemba.ch/api/auth/login",
+        "search_url": "https://admin.myemba.ch/api/search_email?q=",
+        "create_url": [
+            {
+                "label": "EMBA Contact",
+                "url": "https://admin.myemba.ch/api/contact/",
+                "mapping": {
+                    "firstname": "prenom",
+                    "lastname": "nom"
+                }
+            },
+            {
+                "label": "EMBA Participants",
+                "url": "https://admin.myemba.ch/api/participant/",
+                "mapping": {
+                    "firstname": "prenom",
+                    "lastname": "nom"
+                }
+            },
+            {
+                "label": "EMBA Intervenant",
+                "url": "https://admin.myemba.ch/api/intervenant/",
+                "mapping": {
+                    "firstname": "prenom",
+                    "lastname": "nom"
+                }
+            }
+        ],
+        "enabled": true
+    }
 ]
 ```
 

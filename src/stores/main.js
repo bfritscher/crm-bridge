@@ -24,7 +24,7 @@ export const useMainStore = defineStore('main', () => {
     }
     return Promise.any(
       getConfig().map((source) => {
-        if (source.disabled) {
+        if (!source.enabled) {
           return Promise.reject('Source is disabled')
         }
         return searchDataSource(source, email)
