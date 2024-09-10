@@ -1,6 +1,7 @@
 import { ref, reactive } from 'vue'
 import { defineStore } from 'pinia'
 import { getConfig } from '../stores/config'
+import { getMailRecipients } from '@/utils'
 
 export const CACHE = {}
 
@@ -8,6 +9,7 @@ export const useMainStore = defineStore('main', () => {
   const info = ref()
   const selectedContact = ref()
   const showSettings = ref(false)
+  const isComposeMode = Office.context.mailbox.item.to.getAsync !== undefined
 
   const tokens = ref(JSON.parse(localStorage.getItem('CRM-bridge-tokens') || '{}'))
 
@@ -27,12 +29,19 @@ export const useMainStore = defineStore('main', () => {
         if (!source.enabled) {
           return Promise.reject('Source is disabled')
         }
-        return searchDataSource(source, email)
+        return searchDataSourceEmail(source, email)
       })
     )
   }
 
-  function searchDataSource(source, email) {
+  function patchContact(data, source) {
+    if (!Object.prototype.hasOwnProperty.call(data, '_meta')) {
+      data._meta = {}
+    }
+    data._meta.source = source
+  }
+
+  function searchDataSourceEmail(source, email) {
     return fetch(`${source.search_url}${email}`, {
       headers: {
         Authorization: `Bearer ${tokens.value[source.name]}`
@@ -49,13 +58,56 @@ export const useMainStore = defineStore('main', () => {
         return response.json()
       })
       .then((data) => {
-        if (!Object.prototype.hasOwnProperty.call(data, '_meta')) {
-          data._meta = {}
+        if (Array.isArray(data)) {
+          if (data.length === 0) {
+            throw new Error('No data found')
+          }
+          data = data[0]
         }
-        data._meta.source = source
+        patchContact(data, source)
         CACHE[email] = data
         return data
       })
+  }
+
+  function searchContact(search) {
+    contacts.value = []
+    if (!search || search.length < 2) {
+      if (search === '') {
+        parseItem(Office.context.mailbox.item)
+      }
+      return
+    }
+    getConfig().forEach((source) => {
+      if (!source.enabled) {
+        return
+      }
+      fetch(`${source.search_url}${search}`, {
+        headers: {
+          Authorization: `Bearer ${tokens.value[source.name]}`
+        }
+      })
+        .then((response) => {
+          if (response.status === 401) {
+            handleMissingTokens(source)
+            throw new Error('Invalid token')
+          }
+          if (!response.ok) {
+            throw new Error('Network response was not ok')
+          }
+          return response.json()
+        })
+        .then((data) => {
+          if (Array.isArray(data)) {
+            data.forEach((contact) => {
+              patchContact(contact, source)
+            })
+          } else {
+            data = [patchContact(data, source)]
+          }
+          contacts.value.push(...data)
+        })
+    })
   }
 
   const BLACKLIST = []
@@ -68,12 +120,21 @@ export const useMainStore = defineStore('main', () => {
     parseItem(Office.context.mailbox.item)
   })
 
-  function parseItem(item) {
+  async function parseItem(item) {
     if (!item) return
-    const emails = new Set([item.from].concat(item.to).concat(item.cc).concat(item.bcc))
+    let emails = new Set()
+    if (isComposeMode) {
+      emails = new Set(
+        (await getMailRecipients('to'))
+          .concat(await getMailRecipients('cc'))
+          .concat(await getMailRecipients('bcc'))
+      )
+    } else {
+      emails = new Set([item.from].concat(item.to).concat(item.cc).concat(item.bcc))
+    }
     const rawcontacts = [
       ...[...emails]
-        .filter((c) => !BLACKLIST.includes(c.emailAddress))
+        .filter((c) => c.emailAddress && !BLACKLIST.includes(c.emailAddress))
         .map((c) => {
           const parts = c.displayName.split(' ')
           let firstname = parts.shift()
@@ -145,8 +206,7 @@ export const useMainStore = defineStore('main', () => {
             processDialogQueue()
             parseItem(Office.context.mailbox.item)
           })
-          settingsDialog.addEventHandler(Office.EventType.DialogEventReceived, (event) => {
-            console.log('dialog closed', event)
+          settingsDialog.addEventHandler(Office.EventType.DialogEventReceived, () => {
             sourceDialogQueue.splice(sourceDialogQueue.indexOf(source), 1)
             isDialogOpen = false
             processDialogQueue()
@@ -170,7 +230,7 @@ export const useMainStore = defineStore('main', () => {
       [mapping.firstname]: contact.firstname,
       [mapping.lastname]: contact.lastname
     }
-    console.log('addContact', option, data)
+
     await fetch(option.url, {
       method: 'POST',
       headers: {
@@ -188,12 +248,13 @@ export const useMainStore = defineStore('main', () => {
     Object.assign(
       contact,
       { isNotFound: false },
-      await searchDataSource(option.source, contact.email)
+      await searchDataSourceEmail(option.source, contact.email)
     )
     selectedContact.value = contact
   }
 
   return {
+    isComposeMode,
     info,
     selectedContact,
     showSettings,
@@ -201,7 +262,8 @@ export const useMainStore = defineStore('main', () => {
     tokens,
     parseItem,
     loadEmail,
-    searchDataSource,
+    searchDataSourceEmail,
+    searchContact,
     addContact
   }
 })

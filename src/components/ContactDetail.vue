@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div class="d-flex justify-right ">
+    <div class="d-flex justify-right">
       <button @click="save" class="btn btn-primary" :disabled="isSaving">Save</button>
       <button @click="back" class="btn" :disabled="isSaving">Back</button>
     </div>
@@ -81,7 +81,7 @@ async function save() {
     }
     Object.assign(
       mainStore.selectedContact,
-      await mainStore.searchDataSource(
+      await mainStore.searchDataSourceEmail(
         mainStore.selectedContact._meta.source,
         mainStore.selectedContact.email
       )

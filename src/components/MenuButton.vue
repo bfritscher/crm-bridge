@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, defineEmits, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 defineProps({
   options: {
@@ -77,7 +77,6 @@ onBeforeUnmount(() => {
   cursor: pointer;
   transition: border-color 0.2s ease;
 }
-
 
 .dropdown-menu {
   margin-top: 5px;

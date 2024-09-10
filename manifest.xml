@@ -49,7 +49,6 @@
       <Hosts>
         <Host xsi:type="MailHost">
           <DesktopFormFactor>
-            <!-- <FunctionFile resid="Commands.Url" /> -->
             <ExtensionPoint xsi:type="MessageReadCommandSurface">
               <OfficeTab id="TabDefault">
                 <Group id="msgReadGroup">
@@ -69,22 +68,24 @@
                       <SourceLocation resid="Taskpane.Url" />
                       <!-- Enables your add-in to activate without the Reading Pane enabled or a
                       message selected. -->
+                      <!--
                       <SupportsNoItemContext>true</SupportsNoItemContext>
+                      -->
+                      <SupportsPinning>true</SupportsPinning>
                     </Action>
                   </Control>
                 </Group>
               </OfficeTab>
             </ExtensionPoint>
-            <!--
             <ExtensionPoint xsi:type="MessageComposeCommandSurface">
               <OfficeTab id="TabDefault">
                 <Group id="msgComposeCmdGroup">
                   <Label resid="GroupLabel" />
-                  <Control xsi:type="Button" id="msgComposeInsertGist">
-                    <Label resid="TaskpaneButton2.Label" />
+                  <Control xsi:type="Button" id="msgWriteOpenPaneButton">
+                    <Label resid="TaskpaneButton.Label" />
                     <Supertip>
-                      <Title resid="TaskpaneButton2.Title" />
-                      <Description resid="TaskpaneButton2.Tooltip" />
+                      <Title resid="TaskpaneButton.Label" />
+                      <Description resid="TaskpaneButton.Tooltip" />
                     </Supertip>
                     <Icon>
                       <bt:Image size="16" resid="Icon.16x16" />
@@ -93,27 +94,12 @@
                     </Icon>
                     <Action xsi:type="ShowTaskpane">
                       <SourceLocation resid="Taskpane.Url" />
-                    </Action>
-                  </Control>
-                  <Control xsi:type="Button" id="msgComposeInsertDefaultGist">
-                    <Label resid="FunctionButton.Label" />
-                    <Supertip>
-                      <Title resid="FunctionButton.Title" />
-                      <Description resid="FunctionButton.Tooltip" />
-                    </Supertip>
-                    <Icon>
-                      <bt:Image size="16" resid="Icon.16x16" />
-                      <bt:Image size="32" resid="Icon.32x32" />
-                      <bt:Image size="80" resid="Icon.80x80" />
-                    </Icon>
-                    <Action xsi:type="ExecuteFunction">
-                      <FunctionName>insertDefaultGist</FunctionName>
+                      <SupportsPinning>true</SupportsPinning>
                     </Action>
                   </Control>
                 </Group>
               </OfficeTab>
             </ExtensionPoint>
-          -->
           </DesktopFormFactor>
           <MobileFormFactor>
             <ExtensionPoint xsi:type="MobileMessageReadCommandSurface">
@@ -134,6 +120,7 @@
                   </Icon>
                   <Action xsi:type="ShowTaskpane">
                     <SourceLocation resid="Taskpane.Url" />
+                    <SupportsPinning>true</SupportsPinning>
                   </Action>
                 </Control>
               </Group>
@@ -148,29 +135,15 @@
           <bt:Image id="Icon.80x80" DefaultValue="https://localhost:3000/assets/icon-80.png" />
         </bt:Images>
         <bt:Urls>
-          <!-- <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html" /> -->
           <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/index.html" />
         </bt:Urls>
         <bt:ShortStrings>
           <bt:String id="GroupLabel" DefaultValue="CRM Bridge" />
           <bt:String id="TaskpaneButton.Label" DefaultValue="Show Taskpane" />
-          <!--
-          <bt:String id="TaskpaneButton2.Label" DefaultValue="Insert gist" />
-          <bt:String id="TaskpaneButton2.Title" DefaultValue="Insert gist" />
-          <bt:String id="FunctionButton.Label" DefaultValue="Insert default gist" />
-          <bt:String id="FunctionButton.Title" DefaultValue="Insert default gist" />
-          -->
         </bt:ShortStrings>
         <bt:LongStrings>
           <bt:String id="TaskpaneButton.Tooltip"
             DefaultValue="Opens a pane displaying all CRM data." />
-            <!--
-          <bt:String id="ActionButton.Tooltip" DefaultValue="Perform an action when clicked." />
-          <bt:String id="TaskpaneButton2.Tooltip"
-            DefaultValue="Displays a list of your gists and allows you to insert their contents into the current message." />
-          <bt:String id="FunctionButton.Tooltip"
-            DefaultValue="Inserts the content of the gist you mark as default into the current message." />
-            -->
         </bt:LongStrings>
       </Resources>
     </VersionOverrides>

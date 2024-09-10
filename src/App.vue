@@ -13,15 +13,35 @@
     </section>
     <main id="app-body" v-else>
       <settings-page v-if="mainStore.showSettings" />
-      <div id="contacts" v-else-if="!mainStore.selectedContact">
-        <contact-item
-          v-for="contact in mainStore.contacts"
-          :key="contact.email"
-          :contact="contact"
-          @click="selectContact(contact)"
-          class="contact-item"
-        />
-      </div>
+      <template v-else-if="!mainStore.selectedContact">
+        <div class="search-box">
+          <input
+            @input="searchContact($event.target.value)"
+            placeholder="Search"
+            class="search"
+            v-model="searchQuery"
+          />
+          <button v-if="searchQuery" @click="clearSearch" class="clear-button">X</button>
+        </div>
+        <div
+          v-if="mainStore.isComposeMode && mainStore.contacts.length > 0 && searchQuery.length > 1"
+        >
+          <div class="d-flex justify-right">
+            <button @click="addAllMail('to')" class="button">To</button>
+            <button @click="addAllMail('cc')" class="button">Cc</button>
+            <button @click="addAllMail('bcc')" class="button">Bcc</button>
+          </div>
+        </div>
+        <div id="contacts">
+          <contact-item
+            v-for="contact in mainStore.contacts"
+            :key="contact.email"
+            :contact="contact"
+            @click="selectContact(contact)"
+            class="contact-item"
+          />
+        </div>
+      </template>
       <div v-else>
         <contact-detail :contact="mainStore.selectedContact" />
       </div>
@@ -34,11 +54,12 @@
   </div>
 </template>
 <script setup>
-import { nextTick, onMounted, watchEffect } from 'vue'
+import { nextTick, onMounted, watchEffect, ref } from 'vue'
 import { useMainStore } from './stores/main'
 import ContactItem from './components/ContactItem.vue'
 import ContactDetail from './components/ContactDetail.vue'
 import SettingsPage from './components/SettingsPage.vue'
+import { debounce, addMailRecipients } from './utils'
 
 const mainStore = useMainStore()
 
@@ -47,6 +68,11 @@ const isOutlook = mainStore.info.host === Office.HostType.Outlook
 onMounted(() => {
   if (Office.context?.mailbox?.item) {
     mainStore.parseItem(Office.context.mailbox.item)
+    Office.context.mailbox.item.addHandlerAsync(Office.EventType.RecipientsChanged, () => {
+      if (searchQuery.value < 1) {
+        mainStore.parseItem(Office.context.mailbox.item)
+      }
+    })
   }
 })
 
@@ -62,21 +88,52 @@ watchEffect(() => {
   if (mainStore.selectedContact) {
     window.scrollTo(0, 0)
   } else {
-    console.log('scrolling to', scrollPosition)
     nextTick(() => {
       window.scrollTo(0, scrollPosition)
     })
   }
 })
 
+const searchQuery = ref('')
+const searchContact = debounce(mainStore.searchContact, 250)
+function clearSearch() {
+  searchQuery.value = ''
+  searchContact('')
+}
+
 function showSettings() {
   mainStore.showSettings = true
   window.scrollTo(0, 0)
+}
+
+function addAllMail(type) {
+  addMailRecipients(
+    type,
+    mainStore.contacts.map((c) => {
+      return {
+        emailAddress: c.email,
+        displayName: `${c.firstname} ${c.lastname}`
+      }
+    })
+  )
 }
 </script>
 <style scoped>
 .contact-item {
   padding: 8px;
+}
+.search-box {
+  position: relative;
+}
+.search {
+  width: 100%;
+  padding: 8px;
+  border-bottom-color: var(--neutralPrimary);
+}
+.clear-button {
+  position: absolute;
+  right: 4px;
+  top: 0;
 }
 #app-body {
   flex-direction: column;

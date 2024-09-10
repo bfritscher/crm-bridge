@@ -6,55 +6,55 @@
       Data Sources
       <button @click="showJson = !showJson">
         <i v-if="showJson" class="ms-Icon ms-Icon--EditNote"></i>
-        <i v-else class="ms-Icon ms-Icon--Code"></i>        
+        <i v-else class="ms-Icon ms-Icon--Code"></i>
       </button>
     </h4>
     <div v-if="showJson">
       <textarea v-model="configJson" @input="validate"></textarea>
     </div>
     <template v-else>
-    <div v-for="(ds, index) in config" :key="index" class="datasource">
-      <div class="d-flex align-center">
-        <input v-model="ds.name" placeholder="Data Source Name (unique)" required />
-        <label><input v-model="ds.enabled" type="checkbox" /> Enabled</label>
-        <div class="flex"></div>
-        <button @click="removeDataSource(index)" class="ms-fontColor-red">X</button>
-      </div>
-      <label>AuthURL</label>
-      <input v-model="ds.auth_url" placeholder="https://domain/login" />
-      <label>SearchURL</label>
-      <input v-model="ds.search_url" placeholder="https://domain/search?email=" />
-      <label>CreateURLs</label>
-      <div v-if="Array.isArray(ds.create_url)" class="create-urls">
-        <div v-for="(create_url, index2) in ds.create_url" :key="index2" class="create-url">
-          <div class="d-flex align-center">
-            <input v-model="create_url.label" :placeholder="ds.name || 'label'" />
-            <button @click="removeCreateUrl(ds, index2)" class="ms-fontColor-red">X</button>
+      <div v-for="(ds, index) in config" :key="index" class="datasource">
+        <div class="d-flex align-center">
+          <input v-model="ds.name" placeholder="Data Source Name (unique)" required />
+          <label><input v-model="ds.enabled" type="checkbox" /> Enabled</label>
+          <div class="flex"></div>
+          <button @click="removeDataSource(index)" class="ms-fontColor-red">X</button>
+        </div>
+        <label>AuthURL</label>
+        <input v-model="ds.auth_url" placeholder="https://domain/login" />
+        <label>SearchURL</label>
+        <input v-model="ds.search_url" placeholder="https://domain/search?email=" />
+        <label>CreateURLs</label>
+        <div v-if="Array.isArray(ds.create_url)" class="create-urls">
+          <div v-for="(create_url, index2) in ds.create_url" :key="index2" class="create-url">
+            <div class="d-flex align-center">
+              <input v-model="create_url.label" :placeholder="ds.name || 'label'" />
+              <button @click="removeCreateUrl(ds, index2)" class="ms-fontColor-red">X</button>
+            </div>
+            <input v-model="create_url.url" placeholder="https://domain/contact/post" />
+            <label>Mappings (optional)</label>
+            <div class="mappings">
+              <div v-for="(v, k) in create_url.mapping" :key="k" class="d-flex align-center">
+                {{ k }}:&nbsp;
+                <input v-model="create_url.mapping[k]" placeholder="remote field" />
+                <button @click="delete create_url.mapping[k]" class="ms-fontColor-red">X</button>
+              </div>
+              <div class="d-flex justify-right">
+                <input v-model="temp[`${index}_${index2}`]" placeholder="local field" />
+                <button @click="addMapping(create_url, `${index}_${index2}`)">Add</button>
+              </div>
+            </div>
           </div>
-          <input v-model="create_url.url" placeholder="https://domain/contact/post" />
-          <label>Mappings (optional)</label>
-          <div class="mappings">
-            <div v-for="(v, k) in create_url.mapping" :key="k" class="d-flex align-center">
-              {{ k }}:&nbsp;
-              <input v-model="create_url.mapping[k]" placeholder="remote field" />
-              <button @click="delete create_url.mapping[k]" class="ms-fontColor-red">X</button>
-            </div>
-            <div class="d-flex justify-right">
-              <input v-model="temp[`${index}_${index2}`]" placeholder="local field" />
-              <button @click="addMapping(create_url, `${index}_${index2}`)">Add</button>
-            </div>
+          <div class="d-flex justify-right">
+            <button @click="addCreateUrl(ds.create_url)">Add Create URL</button>
           </div>
         </div>
-        <div class="d-flex justify-right">
-          <button @click="addCreateUrl(ds.create_url)">Add Create URL</button>
-        </div>
+        <input v-else v-model="ds.create_url" />
       </div>
-      <input v-else v-model="ds.create_url" />
-    </div>
-    <div class="d-flex justify-right">
-      <button @click="addDataSource">Add data source</button>
-    </div>
-  </template>
+      <div class="d-flex justify-right">
+        <button @click="addDataSource">Add data source</button>
+      </div>
+    </template>
     <div v-if="errorMessage" class="ms-fontColor-red">{{ errorMessage }}</div>
 
     <div class="d-flex justify-right">
@@ -82,12 +82,16 @@ onMounted(() => {
   configJson.value = JSON.stringify(config.value, null, 2)
 })
 
-watch(() => config.value, (value) => {
-  const json = JSON.stringify(value, null, 2)
-  if (json !== configJson.value) {
-    configJson.value = json
-  }
-}, { deep: true })
+watch(
+  () => config.value,
+  (value) => {
+    const json = JSON.stringify(value, null, 2)
+    if (json !== configJson.value) {
+      configJson.value = json
+    }
+  },
+  { deep: true }
+)
 
 function validate(event) {
   try {

@@ -13,6 +13,11 @@
       <div v-if="!hideTitle" class="ms-font-s neutralPrimary" v-html="formattedTitle"></div>
       <div v-if="!hideInfo" class="ms-font-xs neutralPrimary" v-html="formattedInfo"></div>
     </div>
+    <div v-if="mainStore.isComposeMode">
+      <button @click.stop="addToMailTo">
+        <i class="ms-Icon ms-Icon--Mail"></i>
+      </button>
+    </div>
     <div v-if="contact._meta?.external_url">
       <a :href="contact._meta.external_url" target="_blank" class="button" @click.stop="">
         <i class="ms-Icon ms-Icon--OpenInNewTab"></i>
@@ -30,7 +35,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { stripHtml, nl2br } from '@/utils'
+import { stripHtml, nl2br, addMailRecipients } from '@/utils'
 import { getCreateOptions } from '@/stores/config'
 import { useMainStore } from '@/stores/main'
 import MenuButton from './MenuButton.vue'
@@ -57,10 +62,14 @@ const props = defineProps({
 
 const mainStore = useMainStore()
 
-
 const avatarStyle = computed(() => {
   const colors = getColors(props.contact.email)
-  return { width: props.avatarSize, height: props.avatarSize, color: colors.foreground, backgroundColor: colors.background }
+  return {
+    width: props.avatarSize,
+    height: props.avatarSize,
+    color: colors.foreground,
+    backgroundColor: colors.background
+  }
 })
 
 const contactName = computed(() => {
@@ -83,6 +92,15 @@ const avatarInitials = computed(() => {
 const formattedInfo = computed(() => {
   return nl2br(stripHtml(props.contact.info || ''))
 })
+
+function addToMailTo() {
+  addMailRecipients('to', [
+    {
+      displayName: contactName.value,
+      emailAddress: props.contact.email
+    }
+  ])
+}
 </script>
 <style scoped>
 .contact {

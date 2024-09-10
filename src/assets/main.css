@@ -26,7 +26,6 @@
   background-color: #f1f1f1;
 }
 
-
 * {
   box-sizing: border-box;
 }
@@ -43,6 +42,11 @@ button,
   justify-content: space-between;
   align-items: center;
 }
+
+a.button {
+  text-decoration: none;
+}
+
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -102,7 +106,6 @@ textarea {
   border: 0;
   border-bottom: 1px solid var(--neutralTertiary);
 }
-
 
 body {
   --themePrimary: #0f6cbd;
@@ -264,7 +267,7 @@ body {
 }
 body.dark {
   --themePrimary: #0f6cbd;
-  --themeDark: #77B7F7;
+  --themeDark: #77b7f7;
   --themePrimaryHover: #222;
   --neutralDark: #fff;
   --neutralPrimarySurface: #292929;
