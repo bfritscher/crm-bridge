@@ -77,6 +77,7 @@ export const isDark = ref((localStorage.getItem('CRM-bridge-theme-color') || DAR
 
 function applyThemeColor() {
   document.body.classList.toggle('dark', isDark.value)
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', isDark.value ? '#121212' : '#ffffff');
 }
 
 applyThemeColor()
