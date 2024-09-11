@@ -1,17 +1,12 @@
 <template>
   <div class="ms-font-m ms-Fabric">
-    <section v-if="!isOutlook" id="sideload-msg">
+    <header v-if="!mainStore.isOutlook" class="d-flex align-center">
+      <img src="@/assets/crmbridge.svg" alt="CRM Bridge" class="logo" />
       <h2 class="ms-font-xl">
-        Please
-        <a
-          target="_blank"
-          href="https://learn.microsoft.com/office/dev/add-ins/testing/test-debug-office-add-ins#sideload-an-office-add-in-for-testing"
-          >sideload</a
-        >
-        your add-in to see app body.
+        CRM Bridge
       </h2>
-    </section>
-    <main id="app-body" v-else>
+    </header>
+    <main id="app-body">
       <settings-page v-if="mainStore.showSettings" />
       <template v-else-if="!mainStore.selectedContact">
         <div class="search-box">
@@ -62,8 +57,6 @@ import SettingsPage from './components/SettingsPage.vue'
 import { debounce, addMailRecipients } from './utils'
 
 const mainStore = useMainStore()
-
-const isOutlook = mainStore.info.host === Office.HostType.Outlook
 
 onMounted(() => {
   if (Office.context?.mailbox?.item) {
@@ -119,6 +112,15 @@ function addAllMail(type) {
 }
 </script>
 <style scoped>
+.logo {
+  height: 32px;
+  margin-right: 8px;
+}
+header {
+  padding: 8px;
+  color: var(--neutralDark);
+  background-color: var(--neutralPrimarySurface);
+}
 .contact-item {
   padding: 8px;
 }

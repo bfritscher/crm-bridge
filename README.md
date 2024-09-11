@@ -6,6 +6,8 @@ https://aka.ms/olksideload
 
 https://crm-bridge.bf0.ch/manifest.xml
 
+ npx @microsoft/teamsapp-cli install --xml-path .\dist\manifest.xml
+
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).

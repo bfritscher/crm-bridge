@@ -1,26 +1,39 @@
 import { ref } from 'vue'
+import { useMainStore } from './main'
 
 let config
 
 export function getConfig() {
+  const mainStore = useMainStore()
   if (!config) {
-    config = Office.context.roamingSettings.get('config')
+    if (mainStore.isOutlook) {
+      config = Office.context.roamingSettings.get('config')
+    } else {
+      config = JSON.parse(localStorage.getItem('CRM-bridge-config') || '[]')
+    }
   }
   return config || []
 }
 
 export function setConfig(newconfig) {
-  Office.context.roamingSettings.set('config', newconfig)
-  return new Promise((resolve, reject) => {
-    Office.context.roamingSettings.saveAsync((result) => {
-      if (result.status === Office.AsyncResultStatus.Failed) {
-        reject(result.error)
-      } else {
-        config = newconfig
-        resolve(config)
-      }
+  const mainStore = useMainStore()
+  if (mainStore.isOutlook) {
+    Office.context.roamingSettings.set('config', newconfig)
+    return new Promise((resolve, reject) => {
+      Office.context.roamingSettings.saveAsync((result) => {
+        if (result.status === Office.AsyncResultStatus.Failed) {
+          reject(result.error)
+        } else {
+          config = newconfig
+          resolve(config)
+        }
+      })
     })
-  })
+  } else {
+    localStorage.setItem('CRM-bridge-config', JSON.stringify(newconfig))
+    config = newconfig
+    return Promise.resolve(config)
+  }
 }
 
 function optionLabel(entry, source) {

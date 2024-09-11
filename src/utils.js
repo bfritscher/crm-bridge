@@ -1,3 +1,5 @@
+import { useMainStore } from './stores/main'
+
 export function nl2br(text) {
   return text ? text.replace(/\n/g, '<br>') : ''
 }
@@ -44,13 +46,45 @@ export function setMailRecipients(type, emailArray) {
 }
 
 export function addMailRecipients(type, emailArray) {
-  return new Promise((resolve, reject) => {
-    Office.context.mailbox.item[type].addAsync(emailArray, (asyncResult) => {
-      if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-        resolve()
-      } else {
-        reject(asyncResult.error)
-      }
+  const mainStore = useMainStore()
+  if (mainStore.isOutlook) {
+    return new Promise((resolve, reject) => {
+      Office.context.mailbox.item[type].addAsync(emailArray, (asyncResult) => {
+        if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+          resolve()
+        } else {
+          reject(asyncResult.error)
+        }
+      })
     })
-  })
+  } else {
+    return new Promise((resolve) => {
+      sendEmail(emailArray, '', '')
+      resolve()
+    })
+  }
+}
+
+export function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function sendEmail(recipients, subject, body) {
+  // Construct the mailto URL with displayName and emailAddress
+  const mailtoUrl =
+    `mailto:${recipients.map((recipient) => `${encodeURIComponent(recipient.displayName)} <${recipient.emailAddress}>`).join(',')}` +
+    `?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+
+  // Create an anchor element
+  const anchor = document.createElement('a')
+  anchor.href = mailtoUrl
+
+  // Append the anchor to the document body
+  document.body.appendChild(anchor)
+
+  // Simulate a click on the anchor
+  anchor.click()
+
+  // Remove the anchor from the document body
+  document.body.removeChild(anchor)
 }

@@ -13,7 +13,7 @@
       <div v-if="!hideTitle" class="ms-font-s neutralPrimary" v-html="formattedTitle"></div>
       <div v-if="!hideInfo" class="ms-font-xs neutralPrimary" v-html="formattedInfo"></div>
     </div>
-    <div v-if="mainStore.isComposeMode">
+    <div v-if="mainStore.isComposeMode || !mainStore.isOutlook">
       <button @click.stop="addToMailTo">
         <i class="ms-Icon ms-Icon--Mail"></i>
       </button>

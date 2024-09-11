@@ -8,6 +8,8 @@
         Office.onReady((info) => {
             if (Office.context.ui) {
                 Office.context.ui.messageParent(token);
+            } else {
+                window.opener.postMessage({ type: 'auth', token: token }, window.location.origin);
             }
         });
     } else if (loginUrl) {

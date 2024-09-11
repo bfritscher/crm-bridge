@@ -1,7 +1,7 @@
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { getConfig } from '../stores/config'
-import { getMailRecipients } from '@/utils'
+import { getMailRecipients, isValidEmail } from '@/utils'
 
 export const CACHE = {}
 
@@ -9,7 +9,9 @@ export const useMainStore = defineStore('main', () => {
   const info = ref()
   const selectedContact = ref()
   const showSettings = ref(false)
-  const isComposeMode = Office.context.mailbox.item.to.getAsync !== undefined
+  const isComposeMode = Office.context.mailbox?.item?.to.getAsync !== undefined
+
+  const isOutlook = computed(() => info.value.host === Office.HostType.Outlook);
 
   const tokens = ref(JSON.parse(localStorage.getItem('CRM-bridge-tokens') || '{}'))
 
@@ -78,11 +80,11 @@ export const useMainStore = defineStore('main', () => {
       }
       return
     }
-    getConfig().forEach((source) => {
+    Promise.allSettled(getConfig().map((source) => {
       if (!source.enabled) {
-        return
+        return Promise.reject('Source is disabled')
       }
-      fetch(`${source.search_url}${search}`, {
+      return fetch(`${source.search_url}${search}`, {
         headers: {
           Authorization: `Bearer ${tokens.value[source.name]}`
         }
@@ -107,6 +109,15 @@ export const useMainStore = defineStore('main', () => {
           }
           contacts.value.push(...data)
         })
+    })).then(() => {
+      if(contacts.value.length === 0 && isValidEmail(search)) {
+        contacts.value = [{
+          firstname: search,
+          lastname: '',
+          email: search,
+          isNotFound: true
+        }]
+      }
     })
   }
 
@@ -180,10 +191,14 @@ export const useMainStore = defineStore('main', () => {
     }
     const source = sourceDialogQueue[0]
     isDialogOpen = true
-    openAuthDialog(source)
-  }
+    if (isOutlook.value) {
+      openAuthDialogOutlook(source)
+    } else {
+      openAuthDialog(source)
+    }
+  } 
 
-  function openAuthDialog(source) {
+  function openAuthDialogOutlook(source) {
     const dialogOptions = { width: 40, height: 40, displayInIframe: false }
     Office.context.ui.displayDialogAsync(
       //https://crm.bf0.ch/login.html
@@ -214,6 +229,27 @@ export const useMainStore = defineStore('main', () => {
         }
       }
     )
+  }
+
+  function openAuthDialog(source) {
+    const authWindow = window.open(`${window.location.protocol}//${window.location.host}/login.html?url=${source.auth_url}`)
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+  
+      const messageData = event.data;
+      if (messageData.type === 'auth') {
+        // Handle the authentication message
+        tokens.value[source.name] = messageData.token;
+        saveTokens();
+        authWindow.close();
+        sourceDialogQueue.splice(sourceDialogQueue.indexOf(source), 1);
+        isDialogOpen = false;
+        processDialogQueue();
+      }
+    });
+
   }
 
   async function addContact(option, contact) {
@@ -254,6 +290,7 @@ export const useMainStore = defineStore('main', () => {
   }
 
   return {
+    isOutlook,
     isComposeMode,
     info,
     selectedContact,
