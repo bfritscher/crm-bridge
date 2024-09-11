@@ -75,7 +75,7 @@ export const useMainStore = defineStore('main', () => {
   function searchContact(search) {
     contacts.value = []
     if (!search || search.length < 2) {
-      if (search === '') {
+      if (search === '' && isOutlook.value) {
         parseItem(Office.context.mailbox.item)
       }
       return

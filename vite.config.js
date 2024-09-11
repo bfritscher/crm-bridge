@@ -39,6 +39,9 @@ export default defineConfig(async () => {
               type: 'image/png'
             },
           ]
+        },
+        workbox: {
+          navigateFallbackDenylist: [/\/login\.html\?/]
         }
       })
     ],
