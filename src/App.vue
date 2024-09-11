@@ -16,6 +16,7 @@
             class="search"
             v-model="searchQuery"
           />
+          <div class="count" v-if="mainStore.contacts.length > 5">{{ mainStore.contacts.length }} results</div>
           <button v-if="searchQuery" @click="clearSearch" class="clear-button">X</button>
         </div>
         <div
@@ -132,6 +133,15 @@ header {
   padding: 8px;
   border-bottom-color: var(--neutralPrimary);
 }
+
+.count {
+  position: absolute;
+  right: 30px;
+  top: 8px;
+  color: var(--neutralPrimary);
+  font-size: 12px;
+}
+
 .clear-button {
   position: absolute;
   right: 4px;
